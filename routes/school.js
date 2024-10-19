@@ -13,7 +13,6 @@ router.post('/add-school', async (req, res) => {
         if (existingSchool) {
             return res.status(400).json({ error: 'School with this email already exists' });
         }
-
         // Create new School
         const newSchool = new School({
             name,
@@ -23,15 +22,13 @@ router.post('/add-school', async (req, res) => {
             moto,
         });
 
-        await newSchool.save();
-        res.status(201).json({status: true, message: 'School created successfully' });
+        const savedSchool = await newSchool.save();
+        res.status(201).json({status: true, message: 'School created successfully',  school: savedSchool, });
     } catch (error) {
         console.error(error);
         res.status(500).json({status: false, error: 'Server error' });
     }
 });
-
-
 
 router.get('/schools', async (req, res) => {
     try {

@@ -92,7 +92,7 @@ router.get('/assignment/student/:studentId/:assignmentId', async (req, res) => {
         const assignments = await AssignmentSubmission.find({
             studentId,
             assignmentId
-        }).populate('schoolId classId teacherId AssignmentId');
+        }).populate('schoolId classId teacherId assignmentId');
         res.status(200).json(assignments);
     } catch (error) {
         console.error(error);

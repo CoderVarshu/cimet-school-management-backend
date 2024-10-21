@@ -141,7 +141,7 @@ router.post('/teacher-login', async (req, res) => {
         if (user.schoolId._id.toString() !== schoolId) {
             return res.status(401).json({ status: false, message: 'Teacher does not exist for this school' });
         }
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id, role:user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
         
         res.json({ status: true, token, userData:user, message: "LogIn SuccessFully" });
     } catch (error) {

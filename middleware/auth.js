@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 const SECRET_KEY = process.env.JWT_SECRET || 'nfkjjfjfghjfhjhajhjhafhdhjhfhvbdhbfjbdjbjnbasdjbna';
 
 const authenticateToken = (req, res, next) => {
+    // console.log(first)
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
@@ -11,7 +12,7 @@ const authenticateToken = (req, res, next) => {
         return res.sendStatus(401);
     }
 
-    jwt.verify(token, SECRET_KEY, (err, decodedToken) => {
+   const result =  jwt.verify(token, SECRET_KEY, (err, decodedToken) => {
         if (err) {
             if (err.name === 'TokenExpiredError') {
                 return res.status(403).json({ status: false, message: 'Token has expired' });
@@ -19,6 +20,9 @@ const authenticateToken = (req, res, next) => {
 
             return res.status(403).json({ status: false, message: 'Token is not valid' });
         }
+        // if(result.role === 'admin'){
+
+        // }
         // Token is valid, attach the decoded user data to the request object
         req.user = decodedToken;
         next();

@@ -8,7 +8,6 @@ const router = Router();
 router.post('/add-school',authenticateToken, async (req, res) => {
     try {
         const { name, email, phone, address, moto } = req.body;
-        // Check if email already exists
         const existingSchool = await School.findOne({ email });
         if (existingSchool) {
             return res.status(400).json({ error: 'School with this email already exists' });
@@ -61,7 +60,7 @@ router.get('/schools/:id', async (req, res) => {
 
 // // Update existing school
 router.put('/update-school/:id', async (req, res) => {
-    const { id } = req.params; // Get the id from the request parameters
+    const { id } = req.params;
     const { name, email, phone, address, moto } = req.body;
 
     try {
@@ -73,7 +72,6 @@ router.put('/update-school/:id', async (req, res) => {
             moto,
         };
 
-        // Find the school by id and update it
         const updatedSchool = await School.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
 
         if (!updatedSchool) {
@@ -102,9 +100,6 @@ router.delete('/delete-school/:id', async (req, res) => {
         res.status(500).json({status:false, error: 'Server error' });
     }
 });
-
-
-
 
 
 export default router;

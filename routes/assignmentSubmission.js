@@ -13,6 +13,11 @@ router.post('/add-sumission', async(req, res)=>{
             res.status(404).json({status: false, message: 'SchoolId, studentId, subjectId, classId required ' })
         }
 
+    const existingAssignment = await AssignmentSubmission.findOne({assignmentId, studentId})
+        if(existingAssignment) {
+            return res.status(400).json({status: false, message:"Assigment Already Submitted"})
+        }        
+
         const newSubmission = new AssignmentSubmission ({
             task, checked, assignmentId, studentId, teacherId, classId, subjectId, schoolId 
         })

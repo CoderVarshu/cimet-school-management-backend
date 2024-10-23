@@ -31,7 +31,7 @@ app.use(cors({
 }));
 
 // Connect to MongoDB
-connect(process.env.MONGO_URI)
+connect(process.env.MONGO_URI_TEST)
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.log(err));
 

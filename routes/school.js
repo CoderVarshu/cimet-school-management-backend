@@ -40,7 +40,7 @@ router.get('/schools', async (req, res) => {
     }
 });
 
-// geg school by school id
+// get school by school id
 
 
 router.get('/schools/:id', async (req, res) => {

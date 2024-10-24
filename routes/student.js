@@ -63,14 +63,12 @@ router.get('/get-students', async (req, res) => {
 router.get('/class/:schoolId/:classId', async (req, res) => {
 
     try {
-        const {schoolId, classId } = req.query;
-        console.log("RUERY", schoolId, classId  )
+        const {schoolId, classId } = req.params;
         if (!classId || !schoolId) {
             return res.status(400).json({ error: 'classId  and School Id required' });
         }
 
-        const students = await Student.find({ classId,  schoolId}).populate('class ');
-        console.log("DATA", students)
+        const students = await Student.find({ class:classId,  schoolId}).populate('class');
         if (students.length === 0) {
             return res.status(200).json({ status: true, data: [], message: 'No Student data found' });
         }
@@ -134,7 +132,9 @@ router.post('/student-login', async (req, res) => {
     const { schoolId, email, password } = req.body;
 
     try {
-
+        if(!schoolId){
+            return res.status(401).json({ status: false, message: 'School Required' });
+        }
         const user = await Student.findOne({ email }).populate('schoolId class');
         if (!user) {
             return res.status(401).json({ status: false, message: 'Invalid email ' });

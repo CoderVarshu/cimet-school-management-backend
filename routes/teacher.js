@@ -5,37 +5,37 @@ import jwt from 'jsonwebtoken';
 
 const router = Router();
 
-router.post('/add-teacher/:school_id', async(req, res)=>{
+router.post('/add-teacher/:school_id', async (req, res) => {
 
     try {
         const { school_id } = req.params;
-        if(!school_id)  return res.status(400).json({ error: 'schoolId  required' });
-        const { schoolId, firstname, lastname, gender, email, phone,salary, class: classArray, role, password, } = req.body;
-        
+        if (!school_id) return res.status(400).json({ error: 'schoolId  required' });
+        const { schoolId, firstname, lastname, gender, email, phone, salary, class: classArray, role, password, } = req.body;
+
         const existingTeacher = await Teacher.findOne({ email });
-        
+
         if (existingTeacher) {
-            return res.status(400).json({status: false, error: "Teacher with this email already exists" })
+            return res.status(400).json({ status: false, error: "Teacher with this email already exists" })
         }
-        
+
         const hashedPassword = await hash(password, 10)
-        
+
         const newTeacher = new Teacher({
-            schoolId, firstname, lastname, gender, email, phone, salary,class: classArray, role, password: hashedPassword
+            schoolId, firstname, lastname, gender, email, phone, salary, class: classArray, role, password: hashedPassword
         })
-        
+
         await newTeacher.save()
         res.status(201).json({ status: true, message: "Teacher Created SuccessFully" })
 
     }
-    catch(error) {
+    catch (error) {
         console.error(error);
 
         if (error.name === 'ValidationError') {
             const validationErrors = Object.values(error.errors).map(err => err.message);
             return res.status(400).json({ status: false, error: validationErrors });
         }
-        res.status(500).json({status: false, error: 'Server error' }); 
+        res.status(500).json({ status: false, error: 'Server error' });
     }
 })
 
@@ -54,7 +54,7 @@ router.get('/get-teacher/:schoolId', async (req, res) => {
             return res.status(200).json({ status: true, data: [], message: 'No data found' });
         }
         res.status(200).json({ status: true, data: teacher });
-    } catch(error) {
+    } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Server error' });
     }
@@ -62,10 +62,10 @@ router.get('/get-teacher/:schoolId', async (req, res) => {
 
 
 // get teacher for perticular class in specific school
-// Route to get teachers by schoolId and classId
-router.get('/get-teacher/:schoolId/:classId', async (req, res) => {
+router.get('/teacher-by-class/:schoolId/:classId', async (req, res) => {
     try {
         const { schoolId, classId } = req.params;
+        
         if (!schoolId || !classId) {
             return res.status(400).json({ error: 'schoolId and classId are required' });
         }
@@ -83,8 +83,8 @@ router.get('/get-teacher/:schoolId/:classId', async (req, res) => {
 
 router.put('/update-teacher/:id', async (req, res) => {
     try {
-                const { id } = req.params;
-        const { schoolId, firstname, lastname, gender,salary, email, phone, class: classArray, role } = req.body;
+        const { id } = req.params;
+        const { schoolId, firstname, lastname, gender, salary, email, phone, class: classArray, role } = req.body;
 
         let teacher = await Teacher.findById(id);
         if (!teacher) {
@@ -129,11 +129,14 @@ router.post('/teacher-login', async (req, res) => {
     const { schoolId, email, password } = req.body;
 
     try {
+        if (!schoolId) {
+            return res.status(401).json({ status: false, message: 'School Required' });
+        }
         const user = await Teacher.findOne({ email }).populate('schoolId class');
         if (!user) {
             return res.status(401).json({ status: false, message: 'Invalid email ' });
         }
-        
+
         const validPassword = await compare(password, user.password);
         if (!validPassword) {
             return res.status(401).json({ status: false, message: 'Invalid  password' });
@@ -141,9 +144,9 @@ router.post('/teacher-login', async (req, res) => {
         if (user.schoolId._id.toString() !== schoolId) {
             return res.status(401).json({ status: false, message: 'Teacher does not exist for this school' });
         }
-        const token = jwt.sign({ id: user._id, role:user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        
-        res.json({ status: true, token, userData:user, message: "LogIn SuccessFully" });
+        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.json({ status: true, token, userData: user, message: "LogIn SuccessFully" });
     } catch (error) {
         res.status(500).json({ status: false, message: 'Server error' });
     }

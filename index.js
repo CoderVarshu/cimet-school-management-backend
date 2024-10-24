@@ -36,9 +36,8 @@ connect(process.env.MONGO_URI)
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.log(err));
 
-// Define a route for the root URL
 app.get('/', (req, res) => {
-    res.send('Welcome to the API!'); // You can customize this message
+    res.send('Welcome to the API!');
 });
 
 // Use routes

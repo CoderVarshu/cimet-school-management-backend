@@ -38,11 +38,11 @@ const teacherSchema = new Schema({
     
     salary:{
         type: String },
-    class: {
+    class: [{
         type: Schema.Types.ObjectId,
         ref: 'Class',
         required: true
-    },
+    }],
     
     role: {
         type: String,

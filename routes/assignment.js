@@ -2,6 +2,7 @@ import { Router } from "express";
 import { compare, hash } from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Assignment from "../models/Assignment.js";
+import Teacher from "../models/Teacher.js";
 
 const router = Router()
 
@@ -14,7 +15,16 @@ router.post('/add-assignment', async(req,res)=>{
     if(!classId || !subjectId ){
         return res.status(400).json({status: false, message:'School, Class and Subject is required' })
     }
-    const newAssignment = new Assignment ({
+    
+    if(teacherId){
+        const teacher = await Teacher.findById(teacherId)
+        const isClass = teacher.class.includes(classId)
+        if(!isClass){
+            res.status(400).json({status: false, message: "You do not have access for this class"})
+        }
+    }
+
+    const newAssignment =  new Assignment ({
         title, description,classId,schoolId,teacherId, subjectId
     })
 
@@ -35,13 +45,24 @@ router.get('/:classId', async(req,res)=>{
     try{
 
         const {classId} = req.params;
-
         const assignments = await Assignment.find({classId}).populate('schoolId subjectId classId');
         res.status(200).json(assignments)
     }catch(error){
         res.status(500).json({ message: 'Error fetching Assignment', error });
     }
+})
 
+
+router.get('/teacher/:teacherId', async(req,res)=>{
+    try{
+
+        const {teacherId} = req.params;
+        const teacherData = await Teacher.findById(teacherId)
+        const assignments = await Assignment.find({classId: {$in: teacherData.class}}).populate('schoolId subjectId classId');
+        res.status(200).json(assignments)
+    }catch(error){
+        res.status(500).json({ message: 'Error fetching Assignment', error });
+    }
 })
 
 router.get('/school/:schoolId', async(req,res)=>{

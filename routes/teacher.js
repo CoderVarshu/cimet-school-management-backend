@@ -145,8 +145,9 @@ router.post('/teacher-login', async (req, res) => {
             return res.status(401).json({ status: false, message: 'Teacher does not exist for this school' });
         }
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-        res.json({ status: true, token, userData: user, message: "LogIn SuccessFully" });
+        const userObj = user.toObject();
+        delete userObj.password;
+        res.json({ status: true, token, userData: userObj, message: "LogIn SuccessFully" });
     } catch (error) {
         res.status(500).json({ status: false, message: 'Server error' });
     }

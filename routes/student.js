@@ -87,9 +87,11 @@ router.get('/class/teacher/:schoolId/:teacherId', async (req, res) => {
         if (!teacherId || !schoolId) {
             return res.status(400).json({ error: 'classId  and School Id required' });
         }   
-        const classesAssignForTeacher = await Teacher.findById({teacherId})
-         console.log("classes",classesAssignForTeacher )
-        const students = await Student.find({ class:classId,  schoolId}).populate('class');
+        const classesAssignForTeacher = await Teacher.findById(teacherId)
+         
+        const students=await Student.find({class:{$in:classesAssignForTeacher.class}}).populate("class")
+        
+        // const students = await Student.find({ class:classId,  schoolId}).populate('class');
         if (students.length === 0) {
             return res.status(200).json({ status: true, data: [], message: 'No Student data found' });
         }
@@ -99,6 +101,7 @@ router.get('/class/teacher/:schoolId/:teacherId', async (req, res) => {
         res.status(500).json({ status: false, error: 'Server error' });
     }
 });
+
 
 router.put('/update-student/:id', async (req, res) => {
     try {
@@ -165,7 +168,9 @@ router.post('/student-login', async (req, res) => {
             return res.status(401).json({ status: false, message: 'Student does not exist for this school' });
         }
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ status: true, token, userData:user, message: "LogIn SuccessFully" });
+        const userObj = user.toObject();
+        delete userObj.password;
+        res.json({ status: true, token, userData:userObj, message: "LogIn SuccessFully" });
     } catch (error) {
         console.log("error", error)
         res.status(500).json({ status: false, message: 'Server error' });

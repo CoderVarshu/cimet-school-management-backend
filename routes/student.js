@@ -2,6 +2,7 @@ import { Router } from 'express';
 import Student from '../models/Student.js';
 import { compare, hash } from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import Teacher from '../models/Teacher.js';
 
 const router = Router();
 
@@ -79,7 +80,25 @@ router.get('/class/:schoolId/:classId', async (req, res) => {
     }
 });
 
-
+// student according to teacher
+router.get('/class/teacher/:schoolId/:teacherId', async (req, res) => {
+    try {
+        const {schoolId, teacherId } = req.params;
+        if (!teacherId || !schoolId) {
+            return res.status(400).json({ error: 'classId  and School Id required' });
+        }   
+        const classesAssignForTeacher = await Teacher.findById({teacherId})
+         console.log("classes",classesAssignForTeacher )
+        const students = await Student.find({ class:classId,  schoolId}).populate('class');
+        if (students.length === 0) {
+            return res.status(200).json({ status: true, data: [], message: 'No Student data found' });
+        }
+        res.status(200).json({ status: true, data: students });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, error: 'Server error' });
+    }
+});
 
 router.put('/update-student/:id', async (req, res) => {
     try {
@@ -107,9 +126,7 @@ router.put('/update-student/:id', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ status: false, error: 'Server error' });
-
     }
-
 })
 
 
